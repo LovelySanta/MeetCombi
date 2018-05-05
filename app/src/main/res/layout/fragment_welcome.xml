@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dip"
+
+    android:background="@color/colorWelcome_Background"
+
+    android:orientation="vertical"
+    android:id="@+id/welcome"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:background="@color/colorWelcome_Background"
+
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:id="@+id/welcome_title"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dip"
+            android:paddingEnd="5dip"
+            android:paddingTop="10dip"
+            android:paddingBottom="10dip"
+            android:layout_weight="90"
+
+            android:text="@string/welcome_title"
+            android:textColor="@color/colorWelcome_TextColor"
+            />
+
+        <Space
+            android:layout_width="10dip"
+            android:layout_height="match_parent"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            android:layout_weight="10"
+
+            android:contentDescription="@string/welcome_icon"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/welcome_message"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dip"
+        android:paddingEnd="5dip"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+
+        android:text="@string/welcome_message"
+        android:textColor="@color/colorWelcome_TextColor"
+        />
+
+    <Button
+        android:id="@+id/welcome_btnScanDevices"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding='0dip'
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:paddingTop="10dip"
+        android:paddingStart="10dip"
+        android:paddingEnd="10dip"
+
+        android:orientation="horizontal"
+        >
+
+        <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/table_BorderWidth"
+            android:background="@drawable/table_cell_all_borders"
+
+            android:gravity="center"
+            android:stretchColumns="*"
+            >
+
+            <TableRow>
+                <TextView
+                    android:layout_width="0dip"
+                    android:paddingTop="3dip"
+                    android:paddingBottom="3dip"
+                    android:paddingStart="6dip"
+                    android:paddingEnd="6dip"
+                    android:background="@drawable/table_cell_all_borders"
+
+                    android:text="@string/navigator_oscilloscoop"
+                    android:textColor="@color/colorWelcome_TextColor"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    />
+
+                <TextView
+                    android:id="@+id/welcome_table_oscilloscopeStatus"
+
+                    android:layout_width="0dip"
+                    android:paddingTop="3dip"
+                    android:paddingBottom="3dip"
+                    android:paddingStart="6dip"
+                    android:paddingEnd="6dip"
+                    android:background="@drawable/table_cell_all_borders"
+
+                    android:text=""
+                    android:textColor="@color/colorWelcome_TextColor"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:layout_width="0dip"
+                    android:paddingTop="3dip"
+                    android:paddingBottom="3dip"
+                    android:paddingStart="6dip"
+                    android:paddingEnd="6dip"
+                    android:background="@drawable/table_cell_all_borders"
+
+                    android:text="@string/navigator_functieGen"
+                    android:textColor="@color/colorWelcome_TextColor"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    />
+
+                <TextView
+                    android:id="@+id/welcome_table_functieGenStatus"
+
+                    android:layout_width="0dip"
+                    android:paddingTop="3dip"
+                    android:paddingBottom="3dip"
+                    android:paddingStart="6dip"
+                    android:paddingEnd="6dip"
+                    android:background="@drawable/table_cell_all_borders"
+
+                    android:text=""
+                    android:textColor="@color/colorWelcome_TextColor"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    />
+            </TableRow>
+
+            <TableRow>
+                <TextView
+                    android:layout_width="0dip"
+                    android:paddingTop="3dip"
+                    android:paddingBottom="3dip"
+                    android:paddingStart="6dip"
+                    android:paddingEnd="6dip"
+                    android:background="@drawable/table_cell_all_borders"
+
+                    android:text="@string/navigator_multimeter"
+                    android:textColor="@color/colorWelcome_TextColor"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    />
+
+                <TextView
+                    android:id="@+id/welcome_table_multimeterStatus"
+
+                    android:layout_width="0dip"
+                    android:paddingTop="3dip"
+                    android:paddingBottom="3dip"
+                    android:paddingStart="6dip"
+                    android:paddingEnd="6dip"
+                    android:background="@drawable/table_cell_all_borders"
+
+                    android:text=""
+                    android:textColor="@color/colorWelcome_TextColor"
+                    android:textStyle="bold"
+                    android:gravity="start"
+                    />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+
+</LinearLayout>

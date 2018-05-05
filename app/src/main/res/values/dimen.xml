@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General -->
+    <dimen name="table_BorderWidth">0.5dip</dimen>
+
+    <!-- FunctieGenerator -->
+    <dimen name="FuctieGen_FrequencyScreen">40dip</dimen>
+    <dimen name="FuctieGen_FrequencyBtn">33dip</dimen>
+</resources>

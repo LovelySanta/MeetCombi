@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dip"
+
+    android:background="@color/colorNavigation_Background"
+
+    android:orientation="vertical"
+    >
+
+    <Button
+        android:id="@+id/navigatorbutton_welcome"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dip"
+        android:paddingEnd="5dip"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+
+        android:background="@drawable/rounded_edittext_states"
+        />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="10dip"
+        />
+
+    <Button
+        android:id="@+id/navigatorbutton_oscilloscope"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dip"
+        android:paddingEnd="5dip"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+
+        android:background="@drawable/rounded_edittext_states"
+        />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="10dip"
+        />
+
+    <Button
+        android:id="@+id/navigatorbutton_functionGen"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dip"
+        android:paddingEnd="5dip"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+
+        android:background="@drawable/rounded_edittext_states"
+        />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="10dip"
+        />
+
+    <Button
+        android:id="@+id/navigatorbutton_multimeter"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dip"
+        android:paddingEnd="5dip"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+
+        android:background="@drawable/rounded_edittext_states"
+        />
+
+</LinearLayout>

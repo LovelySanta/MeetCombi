@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default colors -->
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!-- Define colors -->
+    <color name="colorBlack">#000000</color>
+    <color name="colorDarkGray">#6B6B6B</color>
+    <color name="colorLightGray">#A8A8A8</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorLightGreen">#00FF00</color>
+    <color name="colorDarkGreen">#38BD0B</color>
+    <color name="colorYellow">#FFFF00</color>
+    <color name="colorPink">#FF4081</color>
+    <color name="colorRed">#FF0000</color>
+    <color name="colorLightBlueGreen">#3AB09E</color>
+    <color name="colorLightBlue">#4DBFCC</color>
+    <color name="colorRegularBlue">#769EED</color>
+
+
+
+
+    <!-- Welcome -->
+    <color name="colorWelcome_Background">@color/colorYellow</color>
+    <color name="colorWelcome_TextColor">@color/colorDarkGray</color>
+
+    <color name="colorWelcome_TableBorder">@color/colorLightGray</color>
+    <color name="colorWelcome_TableUnchecked">@color/colorDarkGray</color>
+    <color name="colorWelcome_TableAvailable">@color/colorDarkGreen</color>
+    <color name="colorWelcome_TableUnavailable">@color/colorRed</color>
+
+    <!-- Navigation menu background -->
+    <color name="colorNavigation_Background">@color/colorRegularBlue</color>
+    <!-- Navigation buttons -->
+    <color name="colorNavigation_Button">@color/colorLightBlue</color>
+    <color name="colorNavigation_ButtonFocussed">@color/colorPink</color>
+
+    <!-- Oscilloscope -->
+    <color name="colorOscilloscope_Background">@color/colorPink</color>
+
+    <color name="colorOscilloscope_ScreenBackground">@color/colorBlack</color>
+    <color name="colorOscilloscope_ScreenDivisionLines">@color/colorWhite</color>
+
+    <!-- FunctionGen -->
+    <color name="colorFunctionGen_Background">@color/colorLightGray</color>
+    <color name="colorFunctionGen_DisplayBackground">@color/colorLightBlueGreen</color>
+
+    <!-- Multimeter -->
+    <color name="colorMultimeter_Background">@color/colorDarkGreen</color>
+</resources>

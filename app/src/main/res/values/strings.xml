@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Meet Combi</string>
+
+    <!-- Navigator -->
+    <string name="navigator_welcome">Welcome</string>
+    <string name="navigator_oscilloscoop">Oscilloscoop</string>
+    <string name="navigator_functieGen">Functie generator</string>
+    <string name="navigator_multimeter">Multimeter</string>
+
+    <!-- Welcome screen -->
+    <string name="welcome_title">Welcome to the app of the MeetCombi.</string>
+    <string name="welcome_icon">Welcome icon</string>
+    <string name="welcome_message">Before you can start you\'ll need to connect with your device. Afther that, by swiping from left to right you\'ll find a menu with all the available functions in your MeetCombi device.</string>
+
+    <string name="welcome_connect">Connect to MeetCombi</string>
+    <string name="welcome_connecting">Connecting ...</string>
+    <string name="welcome_connected">Connected</string>
+
+    <string name="welcome_functionUnchecked">N/A</string>
+    <string name="welcome_functionActive">Active</string>
+    <string name="welcome_functionInactive">Inactive</string>
+</resources>
