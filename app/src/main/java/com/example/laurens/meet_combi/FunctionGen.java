@@ -1,8 +1,10 @@
 package com.example.laurens.meet_combi;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -53,11 +56,6 @@ public class FunctionGen extends ContentFragment
         df.setGroupingSize(3);
         df.setMaximumFractionDigits(0);
 
-        // Display
-        mFrequencyDisplay = (TextView) v.findViewById(R.id.FunctionGen_FrequencyDisplay);
-        mFrequencyDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.FuctieGen_FrequencyScreen));
-        mFrequencyDisplay.setText(df.format(frequency)+" Hz ");
-
         // Button increment frequency
         Button mFrequencyButtonPlus = (Button) v.findViewById(R.id.FunctionGen_FrequencyButtonPlus);
         mFrequencyButtonPlus.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +71,61 @@ public class FunctionGen extends ContentFragment
             @Override
             public void onClick(View v) {
                 changeFrequency(DECREMENT_FREQUENCY);
+            }
+        });
+
+        // Display
+        mFrequencyDisplay = (TextView) v.findViewById(R.id.FunctionGen_FrequencyDisplay);
+        mFrequencyDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.FuctieGen_FrequencyScreen));
+        changeFrequency(SET_FREQUENCY);
+        mFrequencyDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog dialog = null;
+
+                if (!getActivity().isFinishing()) {
+                    // https://developer.android.com/reference/android/app/Dialog
+                    final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+
+                    dialogBuilder
+                            .setTitle("Functiegenerator")
+                            .setMessage("Input new frequency.");
+
+                    dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int buttonPressed) {
+
+                            switch (buttonPressed) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    break;
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                default:
+                                    break;
+                            }
+
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int buttonPressed) {
+
+                            switch (buttonPressed) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    break;
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                default:
+                                    break;
+                            }
+
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    dialog = dialogBuilder.create();
+                    dialog.show();
+                }
             }
         });
 
@@ -96,9 +149,7 @@ public class FunctionGen extends ContentFragment
                 break;
 
             case SET_FREQUENCY:
-                // TODO: this is just a test setup
-                //BluetoothGattService mBluetoothGattService = mBluetoothCallbacks.getBluetooth().getService(SERVICE_TEST);
-                //BluetoothGattCharacteristic mBluetoothGattCharacteristic = mBluetoothCallbacks.getBluetooth().getCharacteristic(mBluetoothGattService, CHARACTERISTIC_POS);
+                mFrequencyDisplay.setText(df.format(frequency)+" Hz ");
                 break;
 
             default:
