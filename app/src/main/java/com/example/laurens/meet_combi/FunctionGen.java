@@ -11,7 +11,6 @@ import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,16 +43,23 @@ public class FunctionGen extends ContentFragment {
     public interface Callbacks {
         Bluetooth getBluetooth();
     }
+    private DecimalFormat df;
 
     // Frequency display
     private TextView mFrequencyDisplay;
-    private DecimalFormat df;
     private int mFrequency = 0;
+    private final byte CHANGE_FREQUENCY = 1;
 
-    // Button handler
-    private final byte INCREMENT_FREQUENCY = 1;
-    private final byte DECREMENT_FREQUENCY = 2;
-    private final byte SET_FREQUENCY = 3;
+    // Amplitude display
+    private TextView mAmplitudeDisplay;
+    private int mAmplitude = 0;
+    private final byte CHANGE_AMPLITUDE = 2;
+
+    // Offset display
+    private TextView mOffsetDisplay;
+    private int mOffset = 0;
+    private final byte CHANGE_OFFSET = 3;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,12 +80,45 @@ public class FunctionGen extends ContentFragment {
         df.setGroupingSize(3);
         df.setMaximumFractionDigits(0);
 
+        initFrequency(v); // Frequency
+        initAmplitude(v); // Amplitude
+        initOffset(v);    // Offset
+
+        // Get bluetooth connection
+        initBluetooth();
+
+        return v;
+    }
+
+    @Override
+    public void onDestroyView() {
+
+        mCallbacks.getBluetooth().removeCallback(mBluetoothCallbacks);
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+
+        super.onAttach(context);
+        mCallbacks = (Callbacks) getActivity();
+    }
+
+    @Override
+    public void onDetach() {
+
+        super.onDetach();
+    }
+
+    private void initFrequency(View v) {
+
         // Button increment frequency
         Button mFrequencyButtonPlus = v.findViewById(R.id.functionGen_FrequencyButtonPlus);
         mFrequencyButtonPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeFrequency(INCREMENT_FREQUENCY, true);
+                mFrequency++;
+                changeSetting(CHANGE_FREQUENCY, true);
             }
         });
 
@@ -88,14 +127,15 @@ public class FunctionGen extends ContentFragment {
         mFrequencyButtonMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeFrequency(DECREMENT_FREQUENCY, true);
+                mFrequency--;
+                changeSetting(CHANGE_FREQUENCY, true);
             }
         });
 
         // Display
         mFrequencyDisplay = v.findViewById(R.id.functionGen_FrequencyDisplay);
         mFrequencyDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.fuctionGen_Screen));
-        changeFrequency(SET_FREQUENCY, false);
+        changeSetting(CHANGE_FREQUENCY, false);
         mFrequencyDisplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,7 +163,7 @@ public class FunctionGen extends ContentFragment {
                         public void onClick(DialogInterface dialogInterface, int buttonPressed) {
                             try {
                                 mFrequency = Integer.parseInt(mEditText.getText().toString());
-                                changeFrequency(SET_FREQUENCY, true);
+                                changeSetting(CHANGE_FREQUENCY, true);
                             } catch (NumberFormatException nfe) {
                                 Log.e("Frequency Input", "Could not parse input.");
                             }
@@ -143,8 +183,159 @@ public class FunctionGen extends ContentFragment {
                 }
             }
         });
+    }
 
-        // Get bluetooth connection
+    private void initAmplitude(View v) {
+
+        // Button increment amplitude
+        Button mFrequencyButtonPlus = v.findViewById(R.id.functionGen_AmplitudeButtonPlus);
+        mFrequencyButtonPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAmplitude++;
+                changeSetting(CHANGE_AMPLITUDE, true);
+            }
+        });
+
+        // Button decrement amplitude
+        Button mFrequencyButtonMinus = v.findViewById(R.id.functionGen_AmplitudeButtonMinus);
+        mFrequencyButtonMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAmplitude--;
+                changeSetting(CHANGE_AMPLITUDE, true);
+            }
+        });
+
+        // Display
+        mAmplitudeDisplay = v.findViewById(R.id.functionGen_AmplitudeDisplay);
+        mAmplitudeDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.fuctionGen_Screen));
+        changeSetting(CHANGE_AMPLITUDE, false);
+        mAmplitudeDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (!getActivity().isFinishing()) {
+                    // https://developer.android.com/reference/android/app/Dialog
+                    final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+
+                    dialogBuilder
+                            .setTitle("Functiegenerator")
+                            .setMessage("Input new amplitude.");
+
+                    final EditText mEditText = new EditText(getActivity());
+                    LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT
+                    );
+                    mEditText.setLayoutParams(mLayoutParams);
+                    mEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    mEditText.setText("" + mAmplitude, TextView.BufferType.EDITABLE);
+                    dialogBuilder.setView(mEditText);
+
+                    dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int buttonPressed) {
+                            try {
+                                mAmplitude = Integer.parseInt(mEditText.getText().toString());
+                                changeSetting(CHANGE_AMPLITUDE, true);
+                            } catch (NumberFormatException nfe) {
+                                Log.e("Amplitude Input", "Could not parse input.");
+                            }
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int buttonPressed) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = dialogBuilder.create();
+                    dialog.show();
+                }
+            }
+        });
+    }
+
+    private void initOffset(View v) {
+
+        // Button increment amplitude
+        Button mFrequencyButtonPlus = v.findViewById(R.id.functionGen_OffsetButtonPlus);
+        mFrequencyButtonPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOffset++;
+                changeSetting(CHANGE_OFFSET, true);
+            }
+        });
+
+        // Button decrement amplitude
+        Button mFrequencyButtonMinus = v.findViewById(R.id.functionGen_OffsetButtonMinus);
+        mFrequencyButtonMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOffset--;
+                changeSetting(CHANGE_OFFSET, true);
+            }
+        });
+
+        // Display
+        mOffsetDisplay = v.findViewById(R.id.functionGen_OffsetDisplay);
+        mOffsetDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.fuctionGen_Screen));
+        changeSetting(CHANGE_OFFSET, false);
+        mOffsetDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (!getActivity().isFinishing()) {
+                    // https://developer.android.com/reference/android/app/Dialog
+                    final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+
+                    dialogBuilder
+                            .setTitle("Functiegenerator")
+                            .setMessage("Input new offset.");
+
+                    final EditText mEditText = new EditText(getActivity());
+                    LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT
+                    );
+                    mEditText.setLayoutParams(mLayoutParams);
+                    mEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    mEditText.setText("" + mOffset, TextView.BufferType.EDITABLE);
+                    dialogBuilder.setView(mEditText);
+
+                    dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int buttonPressed) {
+                            try {
+                                mOffset = Integer.parseInt(mEditText.getText().toString());
+                                changeSetting(CHANGE_OFFSET, true);
+                            } catch (NumberFormatException nfe) {
+                                Log.e("Offset Input", "Could not parse input.");
+                            }
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int buttonPressed) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = dialogBuilder.create();
+                    dialog.show();
+                }
+            }
+        });
+    }
+
+    private void initBluetooth() {
         mBluetoothCallbacks = new Bluetooth.ConnectCallbacks() {
 
             @Override
@@ -189,61 +380,57 @@ public class FunctionGen extends ContentFragment {
                 UUID characteristicUuid = characteristic.getUuid();
                 Log.d(DEBUG_TAG+".onCharacteristicRead", "Characteristic " + characteristicUuid.toString() + " has been read successfully.");
 
+                // Frequency value
                 if (characteristicUuid.equals(mUuidCharacteristicFunctonGenFrequency)) {
                     try{
                         mFrequency = Integer.parseInt(characteristic.getStringValue(0));
-                        changeFrequency(SET_FREQUENCY, false);
+                        changeSetting(CHANGE_FREQUENCY, false);
                     } catch (NumberFormatException nfe) {
                         Log.e(DEBUG_TAG+".onCharacteristicRead", "Could not read the frequency correctly.");
                     }
 
-                //} else if () {
+                // Amplitude value
+                } else if (characteristicUuid.equals(mUuidCharacteristicFunctonGenAmplitude)) {
+                    try{
+                        mAmplitude = Integer.parseInt(characteristic.getStringValue(0));
+                        changeSetting(CHANGE_AMPLITUDE, false);
+                    } catch (NumberFormatException nfe) {
+                        Log.e(DEBUG_TAG+".onCharacteristicRead", "Could not read the amplitude correctly.");
+                    }
 
+                // Offset value
+                } else if (characteristicUuid.equals(mUuidCharacteristicFunctonGenOffset)) {
+                    try{
+                        mOffset = Integer.parseInt(characteristic.getStringValue(0));
+                        changeSetting(CHANGE_OFFSET, false);
+                    } catch (NumberFormatException nfe) {
+                        Log.e(DEBUG_TAG+".onCharacteristicRead", "Could not read the offset correctly.");
+                    }
+
+                } else {
+                    // TODO: other characteristics
                 }
-                // TODO: other characteristics
             }
         };
         mCallbacks.getBluetooth().addCallback(mBluetoothCallbacks);
         mCallbacks.getBluetooth().discoverServices();
-
-        return v;
     }
-
-    @Override
-    public void onDestroyView() {
-
-        mCallbacks.getBluetooth().removeCallback(mBluetoothCallbacks);
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-
-        super.onAttach(context);
-        mCallbacks = (Callbacks) getActivity();
-    }
-
-    @Override
-    public void onDetach() {
-
-        super.onDetach();
-    }
-
-    private void changeFrequency(final byte changeToMake, Boolean updateBluetooth) {
-        // Update frequency
+    private void changeSetting(final byte changeToMake, Boolean updateBluetooth) {
+        // Update TextView
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
             // On UI thread.
             switch (changeToMake) {
-                case INCREMENT_FREQUENCY:
-                    mFrequencyDisplay.setText(df.format(++mFrequency) + " Hz ");
-                    break;
 
-                case DECREMENT_FREQUENCY:
-                    mFrequencyDisplay.setText(df.format(--mFrequency) + " Hz ");
-                    break;
-
-                case SET_FREQUENCY:
+                case CHANGE_FREQUENCY:
                     mFrequencyDisplay.setText(df.format(mFrequency) + " Hz ");
+                    break;
+
+                case CHANGE_AMPLITUDE:
+                    mAmplitudeDisplay.setText(df.format(mAmplitude) + " V");
+                    break;
+
+                case CHANGE_OFFSET:
+                    mOffsetDisplay.setText(df.format(mOffset) + " V");
                     break;
 
                 default:
@@ -254,7 +441,7 @@ public class FunctionGen extends ContentFragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    changeFrequency(changeToMake, false);
+                    changeSetting(changeToMake, false);
                 }
             });
         }
@@ -264,4 +451,5 @@ public class FunctionGen extends ContentFragment {
             // TODO: update value to bluetooth
         }
     }
+
 }
