@@ -20,11 +20,11 @@ public class Welcome extends ContentFragment {
     private final String DEBUG_TAG = "Welcome";
 
     // Service describing what functionality is included in this device
-    private UUID mUuidServiceFunctionalityAvailable = UUID.fromString("1536a95e-4a5d-47fb-967d-2f053b5744b3");
+    private final UUID mUuidServiceFunctionalityAvailable = UUID.fromString("1536a95e-4a5d-47fb-967d-2f053b5744b3");
     // Characteristics in the service
-    private UUID mUuidCharacteristicFunctionGen = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b80");
-    //private UUID mUuidCharacteristicOsciloscope = UUID.fromString("536a95e-4a5d-47fb-967d-2f053b5744b4"); -- TODO @Francis
-    private UUID mUuidCharacteristicMultimeter  = UUID.fromString("49cb47f9-edee-4b02-8091-29d9766fa66a");
+    private final UUID mUuidCharacteristicFunctionGen = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b80");
+    //private final UUID mUuidCharacteristicOscilloscope = UUID.fromString("536a95e-4a5d-47fb-967d-2f053b5744b4"); -- TODO @Francis
+    private final UUID mUuidCharacteristicMultimeter  = UUID.fromString("49cb47f9-edee-4b02-8091-29d9766fa66a");
 
     private Bluetooth.ConnectCallbacks mBluetoothCallbacks;
     private Callbacks mCallbacks;
@@ -49,9 +49,9 @@ public class Welcome extends ContentFragment {
 
         View v = inflater.inflate(R.layout.fragment_welcome, parentVG, false);
 
-        // Table with statusses
-        final TextView mOsciloscope = v.findViewById(R.id.welcome_table_oscilloscopeStatus);
-        final TextView mFunctieGenStatus = v.findViewById(R.id.welcome_table_functieGenStatus);
+        // Table with statuses
+        final TextView mOscilloscope = v.findViewById(R.id.welcome_table_oscilloscopeStatus);
+        final TextView mFunctionGenStatus = v.findViewById(R.id.welcome_table_functieGenStatus);
         final TextView mMultimeterStatus = v.findViewById(R.id.welcome_table_multimeterStatus);
 
         // Button connect
@@ -68,8 +68,8 @@ public class Welcome extends ContentFragment {
         } else {
             setConnectButton(mScanDevicesButton, R.string.welcome_connect, true);
             // Set services unchecked for now...
-            setStatus(mOsciloscope, FUNCTION_STATUS_UNCHECKED);
-            setStatus(mFunctieGenStatus, FUNCTION_STATUS_UNCHECKED);
+            setStatus(mOscilloscope, FUNCTION_STATUS_UNCHECKED);
+            setStatus(mFunctionGenStatus, FUNCTION_STATUS_UNCHECKED);
             setStatus(mMultimeterStatus, FUNCTION_STATUS_UNCHECKED);
         }
         mScanDevicesButton.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +113,7 @@ public class Welcome extends ContentFragment {
 
                         BluetoothGattService mBluetoothGattService = mBluetooth.getService(mUuidServiceFunctionalityAvailable);
 
-                        //Log.d(DEBUG_TAG+".onServicesDiscovered", "Reading all characteristics of service " + mUuidServiceFunctinalityAvailable.toString());
+                        //Log.d(DEBUG_TAG+".onServicesDiscovered", "Reading all characteristics of service " + mUuidServiceFunctionalityAvailable.toString());
                         //for (BluetoothGattCharacteristic mBluetoothGattCharacteristic : mBluetoothGattService.getCharacteristics()) {
                         //    Log.d(DEBUG_TAG+".onServicesDiscovered", mBluetoothGattCharacteristic.getUuid().toString());
                         //}
@@ -132,19 +132,19 @@ public class Welcome extends ContentFragment {
                         UUID characteristicUuid = characteristic.getUuid();
                         Log.d(DEBUG_TAG+".onCharacteristicRead", "Characteristic " + characteristicUuid.toString() + " has been read successfully.");
 
-                        if (characteristicUuid.toString().equals(mUuidCharacteristicFunctionGen.toString())) {
+                        if (characteristicUuid.equals(mUuidCharacteristicFunctionGen)) {
                             // Function generator
                             Log.d(DEBUG_TAG+".onCharacteristicRead", "FunctionGenerator has been read.");
                             final Boolean mStatus = characteristic.getStringValue(0).toLowerCase().equals("true");
 
                             // Set TextView accordingly
-                            setStatus(mFunctieGenStatus, mStatus ? FUNCTION_STATUS_AVAILABLE : FUNCTION_STATUS_UNAVAILABLE);
+                            setStatus(mFunctionGenStatus, mStatus ? FUNCTION_STATUS_AVAILABLE : FUNCTION_STATUS_UNAVAILABLE);
 
                             // Set navigation button active
                             mCallbacks.enableFunction(R.id.functionGen, mStatus);
 
 
-                        } else if (characteristicUuid.toString().equals(mUuidCharacteristicMultimeter.toString())) {
+                        } else if (characteristicUuid.equals(mUuidCharacteristicMultimeter)) {
                             // Multimeter
                             Log.d(DEBUG_TAG+".onCharacteristicRead", "Multimeter has been read.");
                             final Boolean mStatus = characteristic.getStringValue(0).toLowerCase().equals("true");
@@ -154,7 +154,7 @@ public class Welcome extends ContentFragment {
 
                             // Set navigation button active
                             mCallbacks.enableFunction(R.id.multimeter, mStatus);
-                        }
+                        } // TODO : oscilloscope
                     }
                 };
                 mCallbacks.getBluetooth().scanLeDevice(mBluetoothCallbacks);
@@ -223,5 +223,6 @@ public class Welcome extends ContentFragment {
     private void discoverActiveModules(Bluetooth mBluetooth, BluetoothGattService mBluetoothGattService) {
         mBluetooth.readCharacteristic(mBluetoothGattService, mUuidCharacteristicFunctionGen);
         mBluetooth.readCharacteristic(mBluetoothGattService, mUuidCharacteristicMultimeter);
+        // TODO: oscilloscope
     }
 }

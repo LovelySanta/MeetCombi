@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -20,16 +21,23 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class FunctionGen extends ContentFragment
-        implements View.OnTouchListener {
+public class FunctionGen extends ContentFragment {
 
     private final String DEBUG_TAG = "FunctionGen";
 
     // Bluetooth connection
     private Bluetooth.ConnectCallbacks mBluetoothCallbacks;
     private final UUID mUuidServiceFunctionGen = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b80");
+    private final UUID mUuidCharacteristicFunctonGenFrequency     = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b82");
+    private final UUID mUuidCharacteristicFunctonGenSignalShape   = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b85");
+    private final UUID mUuidCharacteristicFunctonGenAmplitude     = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b81");
+    private final UUID mUuidCharacteristicFunctonGenOffset        = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b83");
+    private final UUID mUuidCharacteristicFunctonGenOutputEnabled = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b84");
+
 
     // Callbacks
     private Callbacks mCallbacks;
@@ -40,7 +48,7 @@ public class FunctionGen extends ContentFragment
     // Frequency display
     private TextView mFrequencyDisplay;
     private DecimalFormat df;
-    private int frequency = 0;
+    private int mFrequency = 0;
 
     // Button handler
     private final byte INCREMENT_FREQUENCY = 1;
@@ -67,31 +75,30 @@ public class FunctionGen extends ContentFragment
         df.setMaximumFractionDigits(0);
 
         // Button increment frequency
-        Button mFrequencyButtonPlus = (Button) v.findViewById(R.id.FunctionGen_FrequencyButtonPlus);
+        Button mFrequencyButtonPlus = v.findViewById(R.id.FunctionGen_FrequencyButtonPlus);
         mFrequencyButtonPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeFrequency(INCREMENT_FREQUENCY);
+                changeFrequency(INCREMENT_FREQUENCY, true);
             }
         });
 
         // Button decrement frequency
-        Button mFrequencyButtonMinus = (Button) v.findViewById(R.id.FunctionGen_FrequencyButtonMinus);
+        Button mFrequencyButtonMinus = v.findViewById(R.id.FunctionGen_FrequencyButtonMinus);
         mFrequencyButtonMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeFrequency(DECREMENT_FREQUENCY);
+                changeFrequency(DECREMENT_FREQUENCY, true);
             }
         });
 
         // Display
-        mFrequencyDisplay = (TextView) v.findViewById(R.id.FunctionGen_FrequencyDisplay);
+        mFrequencyDisplay = v.findViewById(R.id.FunctionGen_FrequencyDisplay);
         mFrequencyDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.FuctieGen_FrequencyScreen));
-        changeFrequency(SET_FREQUENCY);
+        changeFrequency(SET_FREQUENCY, false);
         mFrequencyDisplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog dialog = null;
 
                 if (!getActivity().isFinishing()) {
                     // https://developer.android.com/reference/android/app/Dialog
@@ -108,15 +115,15 @@ public class FunctionGen extends ContentFragment
                     );
                     mEditText.setLayoutParams(mLayoutParams);
                     mEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    mEditText.setText("" + frequency, TextView.BufferType.EDITABLE);
+                    mEditText.setText("" + mFrequency, TextView.BufferType.EDITABLE);
                     dialogBuilder.setView(mEditText);
 
                     dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int buttonPressed) {
                             try {
-                                frequency = Integer.parseInt(mEditText.getText().toString());
-                                changeFrequency(SET_FREQUENCY);
+                                mFrequency = Integer.parseInt(mEditText.getText().toString());
+                                changeFrequency(SET_FREQUENCY, true);
                             } catch (NumberFormatException nfe) {
                                 Log.e("Frequency Input", "Could not parse input.");
                             }
@@ -131,7 +138,7 @@ public class FunctionGen extends ContentFragment
                         }
                     });
 
-                    dialog = dialogBuilder.create();
+                    AlertDialog dialog = dialogBuilder.create();
                     dialog.show();
                 }
             }
@@ -166,13 +173,31 @@ public class FunctionGen extends ContentFragment
                 } else {
                     // Start discovering characteristics
                     Log.d(DEBUG_TAG+".onServicesDiscovered", "Start discovering characteristics");
-                    // TODO: check for characterstics
+
+                    List<UUID> mCharacteristicsToRead = new ArrayList<>();
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenFrequency);
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenSignalShape);
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenAmplitude);
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenOffset);
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenOutputEnabled);
+                    mCallbacks.getBluetooth().readCharacteristic(mBluetoothGattService, mCharacteristicsToRead);
                 }
             }
 
             @Override
-            public void onCharacteristicRead(BluetoothGattCharacteristic characteristicReaded) {
+            public void onCharacteristicRead(BluetoothGattCharacteristic characteristic) {
+                UUID characteristicUuid = characteristic.getUuid();
+                Log.d(DEBUG_TAG+".onCharacteristicRead", "Characteristic " + characteristicUuid.toString() + " has been read successfully.");
 
+                if (characteristicUuid.equals(mUuidCharacteristicFunctonGenFrequency)) {
+                    try{
+                        mFrequency = Integer.parseInt(characteristic.getStringValue(0));
+                        changeFrequency(SET_FREQUENCY, false);
+                    } catch (NumberFormatException nfe) {
+                        Log.e(DEBUG_TAG+".onCharacteristicRead", "Could not read the frequency correctly.");
+                    }
+
+                }
             }
         };
         mCallbacks.getBluetooth().addCallback(mBluetoothCallbacks);
@@ -201,27 +226,39 @@ public class FunctionGen extends ContentFragment
         super.onDetach();
     }
 
-    private void changeFrequency(byte changeToMake) {
-        switch (changeToMake) {
-            case INCREMENT_FREQUENCY:
-                mFrequencyDisplay.setText(df.format(++frequency)+" Hz ");
-                break;
+    private void changeFrequency(final byte changeToMake, Boolean updateBluetooth) {
+        // Update frequency
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            // On UI thread.
+            switch (changeToMake) {
+                case INCREMENT_FREQUENCY:
+                    mFrequencyDisplay.setText(df.format(++mFrequency) + " Hz ");
+                    break;
 
-            case DECREMENT_FREQUENCY:
-                mFrequencyDisplay.setText(df.format(--frequency)+" Hz ");
-                break;
+                case DECREMENT_FREQUENCY:
+                    mFrequencyDisplay.setText(df.format(--mFrequency) + " Hz ");
+                    break;
 
-            case SET_FREQUENCY:
-                mFrequencyDisplay.setText(df.format(frequency)+" Hz ");
-                break;
+                case SET_FREQUENCY:
+                    mFrequencyDisplay.setText(df.format(mFrequency) + " Hz ");
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
+        } else {
+            // Not on UI thread.
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeFrequency(changeToMake, false);
+                }
+            });
         }
-    }
 
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        return false;
+        // Update Bluetooth
+        if (updateBluetooth) {
+            // TODO: update value to bluetooth
+        }
     }
 }
