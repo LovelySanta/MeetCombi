@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -90,6 +92,16 @@ public class FunctionGen extends ContentFragment
                     dialogBuilder
                             .setTitle("Functiegenerator")
                             .setMessage("Input new frequency.");
+
+                    final EditText mEditText = new EditText(getActivity());
+                    LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT
+                    );
+                    mEditText.setLayoutParams(mLayoutParams);
+                    mEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    mEditText.setText("" + frequency, TextView.BufferType.EDITABLE);
+                    dialogBuilder.setView(mEditText);
 
                     dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
                         @Override
