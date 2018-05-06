@@ -197,7 +197,10 @@ public class FunctionGen extends ContentFragment {
                         Log.e(DEBUG_TAG+".onCharacteristicRead", "Could not read the frequency correctly.");
                     }
 
+                //} else if () {
+
                 }
+                // TODO: other characteristics
             }
         };
         mCallbacks.getBluetooth().addCallback(mBluetoothCallbacks);
