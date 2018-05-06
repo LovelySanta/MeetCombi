@@ -16,16 +16,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
 
 public class Bluetooth {
@@ -44,14 +40,15 @@ public class Bluetooth {
     // BluetoothAdapter
     private BluetoothAdapter mBluetoothAdapter;
     private static final int REQUEST_ENABLE_BT = 0;
-    private static final int REQUEST_DISCOVERABLE_BT = 1;
-    public static final int REQUEST_LOCATION_PERMISION = 2;
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
 
     //BluetoothLeScanner
     private BluetoothLeScanner mBluetoothLeScanner;
     private ScanCallback mScanCallback;
     //private static final String DEVICE_ADDRESS = "9C:B6:D0:ED:60:64"; // PC Francis
     private static final String DEVICE_ADDRESS = "B8:27:EB:59:FA:7E";   // RaspberryPi3 from Francis
+
+    // BluetoothDevice
     private BluetoothDevice mBluetoothDevice;
     public interface ConnectCallbacks {
         void onScanDone(Boolean deviceFound);
@@ -59,6 +56,7 @@ public class Bluetooth {
         void onServicesDiscovered();
         void onCharacteristicRead(BluetoothGattCharacteristic characteristicReaded);
     }
+    private List<ConnectCallbacks> mConnectCallbacks = new ArrayList<>();
 
     // Handler
     private Handler mHandler;
@@ -102,10 +100,10 @@ public class Bluetooth {
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(mActivity,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                REQUEST_LOCATION_PERMISION);
+                REQUEST_LOCATION_PERMISSION);
     }
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        if (requestCode == REQUEST_LOCATION_PERMISION) {
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -137,7 +135,16 @@ public class Bluetooth {
         }
     }
 
+    public void addCallback(ConnectCallbacks connectCallback) {
+        mConnectCallbacks.add(connectCallback);
+    }
+
+    // Scanning for devices
     public void scanLeDevice(final ConnectCallbacks connectCallback) {
+        addCallback(connectCallback);
+        scanLeDevice();
+    }
+    public void scanLeDevice() {
         // Create scanner
         if (mBluetoothAdapter != null && mBluetoothAdapter.isEnabled() && mBluetoothLeScanner == null) {
             mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
@@ -161,11 +168,11 @@ public class Bluetooth {
                         mHandler.removeCallbacks(mHandlerThread);
 
                         // Callback
-                        connectCallback.onScanDone(true);
-
-                        // Create GATT connection
-                        Log.d(DEBUG_TAG+".scanLeDevice", "Creating GATT");
-                        createBluetoothGatt(connectCallback);
+                        if (mConnectCallbacks.size() > 0) {
+                            for (ConnectCallbacks callback : mConnectCallbacks) {
+                                callback.onScanDone(true);
+                            }
+                        }
                     }
 
                 }
@@ -186,7 +193,11 @@ public class Bluetooth {
                             mBusy = false;
 
                             // Report back
-                            connectCallback.onScanDone(false);
+                            if (mConnectCallbacks.size() > 0) {
+                                for (ConnectCallbacks callback : mConnectCallbacks) {
+                                    callback.onScanDone(false);
+                                }
+                            }
                         }
 
                     }
@@ -197,16 +208,22 @@ public class Bluetooth {
                 mBusy = true;
             } else {
                 // Already connected
-                connectCallback.onScanDone(true);
-                createBluetoothGatt(connectCallback);
+                if (mConnectCallbacks.size() > 0) { // Callback
+                    for (ConnectCallbacks callback : mConnectCallbacks) {
+                        callback.onScanDone(true);
+                    }
+                }
             }
         } else {
             Log.d(DEBUG_TAG+".scanLeDevice", "Bluetooth already scanning");
         }
 
     }
-    private void createBluetoothGatt(final ConnectCallbacks connectCallback) {
+
+    // Creating Bluetooth GATT connection
+    public void createBluetoothGatt() {
         if (!mGattConnected) {
+            Log.d(DEBUG_TAG+".scanLeDevice", "Creating GATT");
             BluetoothGattCallback mBluetoothGattCallback = new BluetoothGattCallback() {
                 // TODO: possible callback functions: https://developer.android.com/reference/android/bluetooth/BluetoothGattCallback.html
 
@@ -215,11 +232,13 @@ public class Bluetooth {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         if (newState == BluetoothGatt.STATE_CONNECTED) {
                             mGattConnected = true;
-                            connectCallback.onConnectingDone(true);
 
-                            // Discover services
-                            Log.d(DEBUG_TAG + ".createBluetoothGatt", "Start discovering");
-                            discoverServices();
+                            if (mConnectCallbacks.size() > 0) { // Callback
+                                for (ConnectCallbacks callback : mConnectCallbacks) {
+                                    callback.onConnectingDone(true);
+                                }
+                            }
+
                         } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                             mGattConnected = false;
                         }
@@ -235,7 +254,11 @@ public class Bluetooth {
                             Log.d(DEBUG_TAG + ".createBluetoothGatt", "Service UUID found: " + mBluetoothGattService.getUuid().toString());
                         }
 
-                        connectCallback.onServicesDiscovered();
+                        if (mConnectCallbacks.size() > 0) { // Callback
+                            for (ConnectCallbacks callback : mConnectCallbacks) {
+                                callback.onServicesDiscovered();
+                            }
+                        }
                     }
                 }
 
@@ -244,7 +267,12 @@ public class Bluetooth {
                     Log.d(DEBUG_TAG + ".readCharacteristic", "Characteristic " + characteristic.getUuid().toString() + " has been read.");
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         mCharacteristicsToRead.remove(characteristic);
-                        connectCallback.onCharacteristicRead(characteristic);
+
+                        if (mConnectCallbacks.size() > 0) { // Callback
+                            for (ConnectCallbacks callback : mConnectCallbacks) {
+                                callback.onCharacteristicRead(characteristic);
+                            }
+                        }
                     }
                     if (mCharacteristicsToRead.size() > 0) {
                         requestCharacteristicRead();
@@ -261,7 +289,11 @@ public class Bluetooth {
                     mBluetoothGattCallback);
         } else {
             // already connected
-            connectCallback.onConnectingDone(true);
+            if (mConnectCallbacks.size() > 0) { // Callback
+                for (ConnectCallbacks callback : mConnectCallbacks) {
+                    callback.onConnectingDone(true);
+                }
+            }
             discoverServices();
         }
     }
@@ -269,6 +301,7 @@ public class Bluetooth {
         return mGattConnected;
     }
 
+    // Bluetooth GATT Services
     public void discoverServices() {
         if (!mGattConnected || mBluetoothGatt == null) {
             Log.d(DEBUG_TAG+".discoverServices","BluetoothGatt not connected");
@@ -286,6 +319,7 @@ public class Bluetooth {
         }
     }
 
+    // Bluetooth GATT Characteristics
     private Boolean requestCharacteristicRead() {
         mBusy = mBluetoothGatt.readCharacteristic(mCharacteristicsToRead.get(mCharacteristicsToRead.size() - 1));
         return mBusy;
@@ -319,4 +353,6 @@ public class Bluetooth {
         }
         return mStatus;
     }
+
+
 }

@@ -21,7 +21,7 @@ public class Welcome extends ContentFragment {
     private final String DEBUG_TAG = "Welcome";
 
     // Service describing what functionality is included in this device
-    private UUID mUuidServiceFunctinalityAvailable = UUID.fromString("1536a95e-4a5d-47fb-967d-2f053b5744b3");
+    private UUID mUuidServiceFunctionalityAvailable = UUID.fromString("1536a95e-4a5d-47fb-967d-2f053b5744b3");
     // Characteristics in the service
     private UUID mUuidCharacteristicFunctionGen = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b80");
     //private UUID mUuidCharacteristicOsciloscope = UUID.fromString("536a95e-4a5d-47fb-967d-2f053b5744b4");
@@ -63,7 +63,7 @@ public class Welcome extends ContentFragment {
             // Disable button if connection has been made already
             setConnectButton(mScanDevicesButton, R.string.welcome_connected, false);
             // Check status
-            BluetoothGattService mBluetoothGattService = mCallbacks.getBluetooth().getService(mUuidServiceFunctinalityAvailable);
+            BluetoothGattService mBluetoothGattService = mCallbacks.getBluetooth().getService(mUuidServiceFunctionalityAvailable);
             if (mBluetoothGattService != null) {
                 Log.d(DEBUG_TAG+".onCreateView", "Start discovering characteristics since service is discovered.");
                 discoverActiveModules(mCallbacks.getBluetooth(), mBluetoothGattService);
@@ -87,7 +87,10 @@ public class Welcome extends ContentFragment {
 
                     @Override
                     public void onScanDone(Boolean deviceFound) {
-                        if (!deviceFound) {
+                        if (deviceFound) {
+                            // Create connection
+                            mCallbacks.getBluetooth().createBluetoothGatt();
+                        } else {
                             // Failed to find device
                             setConnectButton(mScanDevicesButton, R.string.welcome_connect, true);
                         }
@@ -98,6 +101,9 @@ public class Welcome extends ContentFragment {
                         if (deviceConnected) {
                             // We are now connected
                             setConnectButton(mScanDevicesButton, R.string.welcome_connected, false);
+
+                            // Start discovering services
+                            mCallbacks.getBluetooth().discoverServices();
                         } else {
                             // Failed to connect...
                             setConnectButton(mScanDevicesButton, R.string.welcome_connect, true);
@@ -108,7 +114,7 @@ public class Welcome extends ContentFragment {
                     public void onServicesDiscovered() {
                         Bluetooth mBluetooth = mCallbacks.getBluetooth();
 
-                        BluetoothGattService mBluetoothGattService = mBluetooth.getService(mUuidServiceFunctinalityAvailable);
+                        BluetoothGattService mBluetoothGattService = mBluetooth.getService(mUuidServiceFunctionalityAvailable);
 
                         //Log.d(DEBUG_TAG+".onServicesDiscovered", "Reading all characteristics of service " + mUuidServiceFunctinalityAvailable.toString());
                         //for (BluetoothGattCharacteristic mBluetoothGattCharacteristic : mBluetoothGattService.getCharacteristics()) {
@@ -178,13 +184,13 @@ public class Welcome extends ContentFragment {
             // On UI thread.
             if (mStatus == FUNCTION_STATUS_UNCHECKED) {
                 mTextView.setText(R.string.welcome_functionUnchecked);
-                mTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.colorWelcome_TableUnchecked));
+                mTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorWelcome_TableUnchecked));
             } else if (mStatus == FUNCTION_STATUS_UNAVAILABLE) {
                 mTextView.setText(R.string.welcome_functionInactive);
-                mTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.colorWelcome_TableUnavailable));
+                mTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorWelcome_TableUnavailable));
             } else if (mStatus == FUNCTION_STATUS_AVAILABLE) {
                 mTextView.setText(R.string.welcome_functionActive);
-                mTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.colorWelcome_TableAvailable));
+                mTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorWelcome_TableAvailable));
             }
 
         } else {
