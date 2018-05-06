@@ -136,7 +136,19 @@ public class Bluetooth {
     }
 
     public void addCallback(ConnectCallbacks connectCallback) {
-        mConnectCallbacks.add(connectCallback);
+        Boolean alreadyExists = false;
+        for (ConnectCallbacks mConnectCallback : mConnectCallbacks) {
+            if (mConnectCallbacks == connectCallback) {
+                alreadyExists = true;
+                break;
+            }
+        }
+        if (!alreadyExists) {
+            mConnectCallbacks.add(connectCallback);
+        }
+    }
+    public void removeCallback(ConnectCallbacks connectCallback) {
+        while (mConnectCallbacks.remove(connectCallback)) {}
     }
 
     // Scanning for devices

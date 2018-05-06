@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity
-        implements Navigator.Callbacks, Welcome.Callbacks {
+        implements Navigator.Callbacks, Welcome.Callbacks, FunctionGen.Callbacks {
 
     private Bluetooth mBluetooth;
     private Navigator mNavigator;

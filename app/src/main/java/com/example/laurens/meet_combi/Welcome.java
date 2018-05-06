@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 public class Welcome extends ContentFragment {
@@ -24,17 +23,15 @@ public class Welcome extends ContentFragment {
     private UUID mUuidServiceFunctionalityAvailable = UUID.fromString("1536a95e-4a5d-47fb-967d-2f053b5744b3");
     // Characteristics in the service
     private UUID mUuidCharacteristicFunctionGen = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b80");
-    //private UUID mUuidCharacteristicOsciloscope = UUID.fromString("536a95e-4a5d-47fb-967d-2f053b5744b4");
+    //private UUID mUuidCharacteristicOsciloscope = UUID.fromString("536a95e-4a5d-47fb-967d-2f053b5744b4"); -- TODO @Francis
     private UUID mUuidCharacteristicMultimeter  = UUID.fromString("49cb47f9-edee-4b02-8091-29d9766fa66a");
 
-    //private Bluetooth.Callbacks mBluetoothCallbacks;
+    private Bluetooth.ConnectCallbacks mBluetoothCallbacks;
     private Callbacks mCallbacks;
     public interface Callbacks {
         Bluetooth getBluetooth();
         void enableFunction(int functionID, Boolean functionEnabled);
     }
-    // Connect button
-    private Button mScanDevicesButton;
 
     // Table with status of all modules
     private final int FUNCTION_STATUS_UNCHECKED = 0;
@@ -58,7 +55,7 @@ public class Welcome extends ContentFragment {
         final TextView mMultimeterStatus = v.findViewById(R.id.welcome_table_multimeterStatus);
 
         // Button connect
-        mScanDevicesButton = v.findViewById(R.id.welcome_btnScanDevices);
+        Button mScanDevicesButton = v.findViewById(R.id.welcome_btnScanDevices);
         if (mCallbacks.getBluetooth().getConnectionStatus()) {
             // Disable button if connection has been made already
             setConnectButton(mScanDevicesButton, R.string.welcome_connected, false);
@@ -83,7 +80,7 @@ public class Welcome extends ContentFragment {
                 mScanDevicesButton.setText(R.string.welcome_connecting);
                 mScanDevicesButton.setEnabled(false);
 
-                mCallbacks.getBluetooth().scanLeDevice(new Bluetooth.ConnectCallbacks() {
+                mBluetoothCallbacks = new Bluetooth.ConnectCallbacks() {
 
                     @Override
                     public void onScanDone(Boolean deviceFound) {
@@ -127,7 +124,6 @@ public class Welcome extends ContentFragment {
                             // Start discovering characteristics
                             Log.d(DEBUG_TAG+".onServicesDiscovered", "Start discovering characteristics");
                             discoverActiveModules(mBluetooth, mBluetoothGattService);
-                            // TODO: check for other characterstics
                         }
                     }
 
@@ -160,7 +156,8 @@ public class Welcome extends ContentFragment {
                             mCallbacks.enableFunction(R.id.multimeter, mStatus);
                         }
                     }
-                });
+                };
+                mCallbacks.getBluetooth().scanLeDevice(mBluetoothCallbacks);
             }
         });
 
@@ -168,7 +165,15 @@ public class Welcome extends ContentFragment {
     }
 
     @Override
+    public void onDestroyView() {
+
+        mCallbacks.getBluetooth().removeCallback(mBluetoothCallbacks);
+        super.onDestroyView();
+    }
+
+    @Override
     public void onAttach(Context context) {
+
         super.onAttach(context);
         mCallbacks = (Callbacks) getActivity();
     }

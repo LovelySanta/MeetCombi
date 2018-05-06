@@ -25,20 +25,27 @@ import java.util.UUID;
 public class FunctionGen extends ContentFragment
         implements View.OnTouchListener {
 
+    private final String DEBUG_TAG = "FunctionGen";
+
+    // Bluetooth connection
+    private Bluetooth.ConnectCallbacks mBluetoothCallbacks;
+    private final UUID mUuidServiceFunctionGen = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b80");
+
+    // Callbacks
+    private Callbacks mCallbacks;
+    public interface Callbacks {
+        Bluetooth getBluetooth();
+    }
+
+    // Frequency display
     private TextView mFrequencyDisplay;
     private DecimalFormat df;
-    private int frequency = 1234567;
+    private int frequency = 0;
 
     // Button handler
     private final byte INCREMENT_FREQUENCY = 1;
     private final byte DECREMENT_FREQUENCY = 2;
     private final byte SET_FREQUENCY = 3;
-
-    // Bluetooth interface
-    //private Bluetooth.Callbacks mBluetoothCallbacks;
-    private final UUID SERVICE_TEST = UUID.fromString("70d8530a-4743-402e-b5ce-a107946a550f");
-    private final UUID CHARACTERISTIC_POS = UUID.fromString("004dceee-764c-4ab6-9a52-fd36ffdb70d5");
-    private final UUID CHARACTERISTIC_SET_POS = UUID.fromString("23fd46df-8dec-4899-8af4-7f113f62df10");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -130,13 +137,68 @@ public class FunctionGen extends ContentFragment
             }
         });
 
+        // Get bluetooth connection
+        mBluetoothCallbacks = new Bluetooth.ConnectCallbacks() {
+
+            @Override
+            public void onScanDone(Boolean deviceFound) {
+
+            }
+
+            @Override
+            public void onConnectingDone(Boolean deviceConnected) {
+
+            }
+
+            @Override
+            public void onServicesDiscovered() {
+                Bluetooth mBluetooth = mCallbacks.getBluetooth();
+
+                BluetoothGattService mBluetoothGattService = mBluetooth.getService(mUuidServiceFunctionGen);
+
+                //Log.d(DEBUG_TAG+".onServicesDiscovered", "Reading all characteristics of service " + mUuidServiceFunctinalityAvailable.toString());
+                //for (BluetoothGattCharacteristic mBluetoothGattCharacteristic : mBluetoothGattService.getCharacteristics()) {
+                //    Log.d(DEBUG_TAG+".onServicesDiscovered", mBluetoothGattCharacteristic.getUuid().toString());
+                //}
+
+                if (mBluetoothGattService == null) {
+                    Log.d(DEBUG_TAG+".onServicesDiscovered", "Service not found");
+                } else {
+                    // Start discovering characteristics
+                    Log.d(DEBUG_TAG+".onServicesDiscovered", "Start discovering characteristics");
+                    // TODO: check for characterstics
+                }
+            }
+
+            @Override
+            public void onCharacteristicRead(BluetoothGattCharacteristic characteristicReaded) {
+
+            }
+        };
+        mCallbacks.getBluetooth().addCallback(mBluetoothCallbacks);
+        mCallbacks.getBluetooth().discoverServices();
+
         return v;
     }
 
     @Override
+    public void onDestroyView() {
+
+        mCallbacks.getBluetooth().removeCallback(mBluetoothCallbacks);
+        super.onDestroyView();
+    }
+
+    @Override
     public void onAttach(Context context) {
+
         super.onAttach(context);
-        //mBluetoothCallbacks = (Bluetooth.Callbacks) getActivity();
+        mCallbacks = (Callbacks) getActivity();
+    }
+
+    @Override
+    public void onDetach() {
+
+        super.onDetach();
     }
 
     private void changeFrequency(byte changeToMake) {
