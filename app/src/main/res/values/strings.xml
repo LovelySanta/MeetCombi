@@ -7,6 +7,8 @@
     <string name="navigator_functieGen">Functie generator</string>
     <string name="navigator_multimeter">Multimeter</string>
 
+
+
     <!-- Welcome screen -->
     <string name="welcome_title">Welcome to the app of the MeetCombi.</string>
     <string name="welcome_icon">Welcome icon</string>
@@ -19,4 +21,15 @@
     <string name="welcome_functionUnchecked">N/A</string>
     <string name="welcome_functionActive">Active</string>
     <string name="welcome_functionInactive">Inactive</string>
+
+
+
+    <!-- FunctionGen screen -->
+    <string name="functionGen_plusSign">+</string>
+    <string name="functionGen_minusSign">-</string>
+
+    <string name="functionGen_frequency">Frequentie</string>
+    <string name="functionGen_amplitude">Amplitude</string>
+    <string name="functionGen_offset">Offset</string>
+
 </resources>

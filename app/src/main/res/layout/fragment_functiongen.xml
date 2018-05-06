@@ -13,7 +13,13 @@
     android:id="@+id/functionGen"
     >
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip"
 
+        android:text="@string/functionGen_frequency"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,17 +30,19 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
 
+            android:paddingStart="0dip"
             android:paddingEnd="10dip"
+
             >
 
             <Button
-                android:id="@+id/FunctionGen_FrequencyButtonPlus"
+                android:id="@+id/functionGen_FrequencyButtonPlus"
 
-                android:layout_width="@dimen/FuctieGen_FrequencyBtn"
-                android:layout_height="@dimen/FuctieGen_FrequencyBtn"
+                android:layout_width="@dimen/fuctionGen_Btn"
+                android:layout_height="@dimen/fuctionGen_Btn"
                 android:padding='0dip'
 
-                android:text="+"/>
+                android:text="@string/functionGen_plusSign"/>
 
             <android.support.v4.widget.Space
                 android:layout_width="match_parent"
@@ -42,19 +50,19 @@
                 android:layout_weight="1"/>
 
             <Button
-                android:id="@+id/FunctionGen_FrequencyButtonMinus"
+                android:id="@+id/functionGen_FrequencyButtonMinus"
 
-                android:layout_width="@dimen/FuctieGen_FrequencyBtn"
-                android:layout_height="@dimen/FuctieGen_FrequencyBtn"
+                android:layout_width="@dimen/fuctionGen_Btn"
+                android:layout_height="@dimen/fuctionGen_Btn"
                 android:padding='0dip'
 
 
-                android:text="-"/>
+                android:text="@string/functionGen_minusSign"/>
 
         </LinearLayout>
 
         <TextView
-            android:id="@+id/FunctionGen_FrequencyDisplay"
+            android:id="@+id/functionGen_FrequencyDisplay"
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,14 +73,144 @@
 
             android:background="@color/colorFunctionGen_DisplayBackground"
 
-            android:gravity="right"
+            android:gravity="end"
+            android:textAlignment="gravity"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip"
+
+        android:text="@string/functionGen_amplitude"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+
+            android:paddingStart="0dip"
+            android:paddingEnd="10dip"
+            >
+
+            <Button
+                android:id="@+id/functionGen_AmplitudeButtonPlus"
+
+                android:layout_width="@dimen/fuctionGen_Btn"
+                android:layout_height="@dimen/fuctionGen_Btn"
+                android:padding='0dip'
+
+                android:text="@string/functionGen_plusSign"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/functionGen_AmplitudeButtonMinus"
+
+                android:layout_width="@dimen/fuctionGen_Btn"
+                android:layout_height="@dimen/fuctionGen_Btn"
+                android:padding='0dip'
+
+
+                android:text="@string/functionGen_minusSign"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/functionGen_AmplitudeDisplay"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dip"
+            android:paddingEnd="5dip"
+            android:paddingTop="10dip"
+            android:paddingBottom="10dip"
+
+            android:background="@color/colorFunctionGen_DisplayBackground"
+
+            android:gravity="end"
+            android:textAlignment="gravity"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip"
+
+        android:text="@string/functionGen_offset"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+
+            android:paddingStart="0dip"
+            android:paddingEnd="10dip"
+            >
+
+            <Button
+                android:id="@+id/functionGen_OffsetButtonPlus"
+
+                android:layout_width="@dimen/fuctionGen_Btn"
+                android:layout_height="@dimen/fuctionGen_Btn"
+                android:padding='0dip'
+
+                android:text="@string/functionGen_plusSign"/>
+
+            <android.support.v4.widget.Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/functionGen_OffsetButtonMinus"
+
+                android:layout_width="@dimen/fuctionGen_Btn"
+                android:layout_height="@dimen/fuctionGen_Btn"
+                android:padding='0dip'
+
+
+                android:text="@string/functionGen_minusSign"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/functionGen_OffsetDisplay"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dip"
+            android:paddingEnd="5dip"
+            android:paddingTop="10dip"
+            android:paddingBottom="10dip"
+
+            android:background="@color/colorFunctionGen_DisplayBackground"
+
+            android:gravity="end"
             android:textAlignment="gravity"
             />
 
     </LinearLayout>
 
     <Button
-        android:id="@+id/FunctionGen_SetActive"
+        android:id="@+id/functionGen_SetActive"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

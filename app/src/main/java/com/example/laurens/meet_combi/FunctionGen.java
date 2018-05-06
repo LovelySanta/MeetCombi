@@ -75,7 +75,7 @@ public class FunctionGen extends ContentFragment {
         df.setMaximumFractionDigits(0);
 
         // Button increment frequency
-        Button mFrequencyButtonPlus = v.findViewById(R.id.FunctionGen_FrequencyButtonPlus);
+        Button mFrequencyButtonPlus = v.findViewById(R.id.functionGen_FrequencyButtonPlus);
         mFrequencyButtonPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,7 +84,7 @@ public class FunctionGen extends ContentFragment {
         });
 
         // Button decrement frequency
-        Button mFrequencyButtonMinus = v.findViewById(R.id.FunctionGen_FrequencyButtonMinus);
+        Button mFrequencyButtonMinus = v.findViewById(R.id.functionGen_FrequencyButtonMinus);
         mFrequencyButtonMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,8 +93,8 @@ public class FunctionGen extends ContentFragment {
         });
 
         // Display
-        mFrequencyDisplay = v.findViewById(R.id.FunctionGen_FrequencyDisplay);
-        mFrequencyDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.FuctieGen_FrequencyScreen));
+        mFrequencyDisplay = v.findViewById(R.id.functionGen_FrequencyDisplay);
+        mFrequencyDisplay.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.fuctionGen_Screen));
         changeFrequency(SET_FREQUENCY, false);
         mFrequencyDisplay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,7 +163,7 @@ public class FunctionGen extends ContentFragment {
 
                 BluetoothGattService mBluetoothGattService = mBluetooth.getService(mUuidServiceFunctionGen);
 
-                //Log.d(DEBUG_TAG+".onServicesDiscovered", "Reading all characteristics of service " + mUuidServiceFunctinalityAvailable.toString());
+                //Log.d(DEBUG_TAG+".onServicesDiscovered", "Reading all characteristics of service " + mUuidServiceFunctionalityAvailable.toString());
                 //for (BluetoothGattCharacteristic mBluetoothGattCharacteristic : mBluetoothGattService.getCharacteristics()) {
                 //    Log.d(DEBUG_TAG+".onServicesDiscovered", mBluetoothGattCharacteristic.getUuid().toString());
                 //}
