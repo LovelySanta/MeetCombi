@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -106,15 +107,12 @@ public class FunctionGen extends ContentFragment
                     dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int buttonPressed) {
-
-                            switch (buttonPressed) {
-                                case DialogInterface.BUTTON_POSITIVE:
-                                    break;
-                                case DialogInterface.BUTTON_NEGATIVE:
-                                default:
-                                    break;
+                            try {
+                                frequency = Integer.parseInt(mEditText.getText().toString());
+                                changeFrequency(SET_FREQUENCY);
+                            } catch (NumberFormatException nfe) {
+                                Log.e("Frequency Input", "Could not parse input.");
                             }
-
                             dialogInterface.dismiss();
                         }
                     });
@@ -122,15 +120,6 @@ public class FunctionGen extends ContentFragment
                     dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int buttonPressed) {
-
-                            switch (buttonPressed) {
-                                case DialogInterface.BUTTON_POSITIVE:
-                                    break;
-                                case DialogInterface.BUTTON_NEGATIVE:
-                                default:
-                                    break;
-                            }
-
                             dialogInterface.dismiss();
                         }
                     });
