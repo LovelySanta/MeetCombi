@@ -411,6 +411,11 @@ public class FunctionGen extends ContentFragment {
                     // TODO: other characteristics
                 }
             }
+
+            @Override
+            public void onCharacteristicWrite(BluetoothGattCharacteristic characteristicWritten) {
+
+            }
         };
         mCallbacks.getBluetooth().addCallback(mBluetoothCallbacks);
         mCallbacks.getBluetooth().discoverServices();
@@ -448,7 +453,25 @@ public class FunctionGen extends ContentFragment {
 
         // Update Bluetooth
         if (updateBluetooth) {
-            // TODO: update value to bluetooth
+            Log.d(DEBUG_TAG+".changeSetting", "Setting " + CHANGE_FREQUENCY + " has been requested to write bluetooth.");
+
+            switch (changeToMake) {
+
+                case CHANGE_FREQUENCY:
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenFrequency, mFrequency);
+                    break;
+
+                case CHANGE_AMPLITUDE:
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenAmplitude, mFrequency);
+                    break;
+
+                case CHANGE_OFFSET:
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenOffset, mFrequency);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 

@@ -156,6 +156,11 @@ public class Welcome extends ContentFragment {
                             mCallbacks.enableFunction(R.id.multimeter, mStatus);
                         } // TODO : oscilloscope
                     }
+
+                    @Override
+                    public void onCharacteristicWrite(BluetoothGattCharacteristic characteristicWritten) {
+
+                    }
                 };
                 mCallbacks.getBluetooth().scanLeDevice(mBluetoothCallbacks);
             }

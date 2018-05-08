@@ -16,12 +16,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class Bluetooth {
@@ -46,7 +49,8 @@ public class Bluetooth {
     private BluetoothLeScanner mBluetoothLeScanner;
     private ScanCallback mScanCallback;
     //private static final String DEVICE_ADDRESS = "9C:B6:D0:ED:60:64"; // PC Francis
-    private static final String DEVICE_ADDRESS = "B8:27:EB:59:FA:7E";   // RaspberryPi3 from Francis
+    //private static final String DEVICE_ADDRESS = "B8:27:EB:59:FA:7E";   // RaspberryPi3 from Francis
+    private static final String DEVICE_ADDRESS = "B8:27:EB:09:4F:6F";
 
     // BluetoothDevice
     private BluetoothDevice mBluetoothDevice;
@@ -54,7 +58,8 @@ public class Bluetooth {
         void onScanDone(Boolean deviceFound);
         void onConnectingDone(Boolean deviceConnected);
         void onServicesDiscovered();
-        void onCharacteristicRead(BluetoothGattCharacteristic characteristicReaded);
+        void onCharacteristicRead(BluetoothGattCharacteristic characteristicRead);
+        void onCharacteristicWrite(BluetoothGattCharacteristic characteristicWritten);
     }
     private List<ConnectCallbacks> mConnectCallbacks = new ArrayList<>();
 
@@ -66,12 +71,33 @@ public class Bluetooth {
     private BluetoothGatt mBluetoothGatt;
     private Boolean mGattConnected = false;
     private List<BluetoothGattCharacteristic> mCharacteristicsToRead = new ArrayList<>();
+    private Map<BluetoothGattCharacteristic, WriteValue> mCharacteristicsToWrite = new HashMap<BluetoothGattCharacteristic, WriteValue>();
 
+    private class WriteValue {
+        private int valueType;
+        private Object value;
+
+        WriteValue(int valueType, Object value) {
+            this.valueType = valueType;
+            this.value = value;
+        };
+
+        public int getValueType() {
+            return this.valueType;
+        }
+
+        public Object getValue() {
+            return this.value;
+        }
+        public int getIntValue() {
+            return (Integer) this.value;
+        }
+    }
 
 
     public Bluetooth(Activity activity, Context context) {
-        mActivity = activity;
-        mContext = context;
+        this.mActivity = activity;
+        this.mContext = context;
     }
 
     private void init() {
@@ -286,11 +312,20 @@ public class Bluetooth {
                             }
                         }
                     }
-                    if (mCharacteristicsToRead.size() > 0) {
-                        requestCharacteristicRead();
-                    } else {
-                        // Done reading
-                        mBusy = false;
+                    requestCharacteristicRead();
+                }
+
+                @Override
+                public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+                    Log.d(DEBUG_TAG + ".writeCharacteristic", "Characteristic " + characteristic.getUuid().toString() + " has been written.");
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        mCharacteristicsToWrite.remove(characteristic);
+
+                        if (mConnectCallbacks.size() > 0) { // Callback
+                            for (ConnectCallbacks callback : mConnectCallbacks) {
+                                callback.onCharacteristicWrite(characteristic);
+                            }
+                        }
                     }
                 }
             };
@@ -333,7 +368,16 @@ public class Bluetooth {
 
     // Bluetooth GATT Characteristics
     private Boolean requestCharacteristicRead() {
-        mBusy = mBluetoothGatt.readCharacteristic(mCharacteristicsToRead.get(mCharacteristicsToRead.size() - 1));
+        if (mCharacteristicsToRead.size() > 0) {
+            mBusy = mBluetoothGatt.readCharacteristic(mCharacteristicsToRead.get(mCharacteristicsToRead.size() - 1));
+        } else { // Nothing more to read
+            if (mCharacteristicsToWrite.size() > 0) {
+                requestCharacteristicWrite();
+            } else {
+                // Done reading
+                mBusy = false;
+            }
+        }
         return mBusy;
     }
     private Boolean readCharacteristic(BluetoothGattCharacteristic mBluetoothGattCharacteristic) {
@@ -366,5 +410,63 @@ public class Bluetooth {
         return mStatus;
     }
 
+    private Boolean requestCharacteristicWrite() {
+        if (mCharacteristicsToWrite.size() > 0) {
+            Map.Entry<BluetoothGattCharacteristic, WriteValue> hashMapEntry = mCharacteristicsToWrite.entrySet().iterator().next();
+            BluetoothGattCharacteristic characteristic = hashMapEntry.getKey();
+            WriteValue mValue = hashMapEntry.getValue();
 
+            switch (mValue.getValueType()) {
+                case BluetoothGattCharacteristic.FORMAT_UINT32:
+                    Log.d(DEBUG_TAG + ".requestCharacteristicWrite", "Characteristic " + characteristic.getUuid().toString() + " getting writting value " + mValue.getIntValue());
+
+                    characteristic.setValue(mValue.getIntValue(), BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    //characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                    characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+                    mBusy = mBluetoothGatt.writeCharacteristic(characteristic);
+                    break;
+
+                default:
+                    mBusy = false;
+                    break;
+            }
+            return mBusy;
+        } else {
+            if (mCharacteristicsToRead.size() > 0) {
+                requestCharacteristicRead();
+            } else {
+                mBusy = false;
+            }
+            return mBusy;
+        }
+    }
+    private Boolean writeCharacteristic(BluetoothGattCharacteristic mBluetoothGattCharacteristic, int formatType, Object value) {
+        if (!mGattConnected || mBluetoothGatt == null) {
+            Log.d(DEBUG_TAG+".writeCharacteristic","BluetoothGatt not connected");
+            return false;
+        } else if (mBluetoothGattCharacteristic == null) {
+            Log.d(DEBUG_TAG+".writeCharacteristic", "No characteristic found.");
+            return false;
+        } else {
+            Log.d(DEBUG_TAG + ".writeCharacteristic", "Characteristic " + mBluetoothGattCharacteristic.getUuid().toString() + " has been requested to be written.");
+            mCharacteristicsToWrite.put(mBluetoothGattCharacteristic, new WriteValue(formatType, value));
+            if (mBusy) {
+                Log.d(DEBUG_TAG + ".writeCharacteristic", "Bluetooth is already working");
+                return true;
+            } else {
+                // Start reading
+                return requestCharacteristicWrite();
+            }
+        }
+    }
+    public Boolean writeCharacteristic(BluetoothGattService mBluetoothGattService, UUID mCharacteristicUuid, int formatType, Object mValueToWrite) {
+        return writeCharacteristic(mBluetoothGattService.getCharacteristic(mCharacteristicUuid), formatType, mValueToWrite);
+    }
+    public Boolean writeCharacteristic(BluetoothGattService mBluetoothGattService, UUID mCharacteristicUuid, Object mValueToWrite) {
+        if (mValueToWrite instanceof Integer) {
+            return writeCharacteristic(mBluetoothGattService, mCharacteristicUuid, BluetoothGattCharacteristic.FORMAT_UINT32, mValueToWrite);
+        } else {
+            return false;
+        }
+    }
 }
