@@ -327,6 +327,7 @@ public class Bluetooth {
                             }
                         }
                     }
+                    requestCharacteristicWrite();
                 }
             };
 
@@ -417,10 +418,11 @@ public class Bluetooth {
             WriteValue mValue = hashMapEntry.getValue();
 
             switch (mValue.getValueType()) {
-                case BluetoothGattCharacteristic.FORMAT_UINT32:
+                case BluetoothGattCharacteristic.FORMAT_UINT16:
                     Log.d(DEBUG_TAG + ".requestCharacteristicWrite", "Characteristic " + characteristic.getUuid().toString() + " getting writting value " + mValue.getIntValue());
 
-                    characteristic.setValue(mValue.getIntValue(), BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    characteristic.setValue(mValue.getIntValue(), BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+                    //characteristic.setValue(501, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                     //characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
                     characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
                     mBusy = mBluetoothGatt.writeCharacteristic(characteristic);
@@ -464,7 +466,7 @@ public class Bluetooth {
     }
     public Boolean writeCharacteristic(BluetoothGattService mBluetoothGattService, UUID mCharacteristicUuid, Object mValueToWrite) {
         if (mValueToWrite instanceof Integer) {
-            return writeCharacteristic(mBluetoothGattService, mCharacteristicUuid, BluetoothGattCharacteristic.FORMAT_UINT32, mValueToWrite);
+            return writeCharacteristic(mBluetoothGattService, mCharacteristicUuid, BluetoothGattCharacteristic.FORMAT_UINT16, mValueToWrite);
         } else {
             return false;
         }

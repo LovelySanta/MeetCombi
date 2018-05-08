@@ -31,10 +31,10 @@ public class FunctionGen extends ContentFragment {
     // Bluetooth connection
     private Bluetooth.ConnectCallbacks mBluetoothCallbacks;
     private final UUID mUuidServiceFunctionGen = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b80");
-    private final UUID mUuidCharacteristicFunctonGenFrequency     = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b82");
+    private final UUID mUuidCharacteristicFunctionGenFrequency = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b82");
     private final UUID mUuidCharacteristicFunctonGenSignalShape   = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b85");
-    private final UUID mUuidCharacteristicFunctonGenAmplitude     = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b81");
-    private final UUID mUuidCharacteristicFunctonGenOffset        = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b83");
+    private final UUID mUuidCharacteristicFunctionGenAmplitude = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b81");
+    private final UUID mUuidCharacteristicFunctionGenOffset = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b83");
     private final UUID mUuidCharacteristicFunctonGenOutputEnabled = UUID.fromString("8a37da8a-bd28-41fe-8aa3-74afa5b60b84");
 
 
@@ -366,10 +366,10 @@ public class FunctionGen extends ContentFragment {
                     Log.d(DEBUG_TAG+".onServicesDiscovered", "Start discovering characteristics");
 
                     List<UUID> mCharacteristicsToRead = new ArrayList<>();
-                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenFrequency);
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctionGenFrequency);
                     mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenSignalShape);
-                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenAmplitude);
-                    mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenOffset);
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctionGenAmplitude);
+                    mCharacteristicsToRead.add(mUuidCharacteristicFunctionGenOffset);
                     mCharacteristicsToRead.add(mUuidCharacteristicFunctonGenOutputEnabled);
                     mCallbacks.getBluetooth().readCharacteristic(mBluetoothGattService, mCharacteristicsToRead);
                 }
@@ -381,7 +381,7 @@ public class FunctionGen extends ContentFragment {
                 Log.d(DEBUG_TAG+".onCharacteristicRead", "Characteristic " + characteristicUuid.toString() + " has been read successfully.");
 
                 // Frequency value
-                if (characteristicUuid.equals(mUuidCharacteristicFunctonGenFrequency)) {
+                if (characteristicUuid.equals(mUuidCharacteristicFunctionGenFrequency)) {
                     try{
                         mFrequency = Integer.parseInt(characteristic.getStringValue(0));
                         changeSetting(CHANGE_FREQUENCY, false);
@@ -390,7 +390,7 @@ public class FunctionGen extends ContentFragment {
                     }
 
                 // Amplitude value
-                } else if (characteristicUuid.equals(mUuidCharacteristicFunctonGenAmplitude)) {
+                } else if (characteristicUuid.equals(mUuidCharacteristicFunctionGenAmplitude)) {
                     try{
                         mAmplitude = Integer.parseInt(characteristic.getStringValue(0));
                         changeSetting(CHANGE_AMPLITUDE, false);
@@ -399,7 +399,7 @@ public class FunctionGen extends ContentFragment {
                     }
 
                 // Offset value
-                } else if (characteristicUuid.equals(mUuidCharacteristicFunctonGenOffset)) {
+                } else if (characteristicUuid.equals(mUuidCharacteristicFunctionGenOffset)) {
                     try{
                         mOffset = Integer.parseInt(characteristic.getStringValue(0));
                         changeSetting(CHANGE_OFFSET, false);
@@ -458,15 +458,15 @@ public class FunctionGen extends ContentFragment {
             switch (changeToMake) {
 
                 case CHANGE_FREQUENCY:
-                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenFrequency, mFrequency);
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenFrequency, mFrequency);
                     break;
 
                 case CHANGE_AMPLITUDE:
-                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenAmplitude, mFrequency);
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenAmplitude, mAmplitude);
                     break;
 
                 case CHANGE_OFFSET:
-                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenOffset, mFrequency);
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenOffset, mOffset);
                     break;
 
                 default:
