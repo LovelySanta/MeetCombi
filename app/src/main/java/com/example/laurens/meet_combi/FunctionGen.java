@@ -60,6 +60,10 @@ public class FunctionGen extends ContentFragment {
     private int mOffset = 0;
     private final byte CHANGE_OFFSET = 3;
 
+    // Enable output button
+    private Button mEnableOutputButton;
+    private Boolean mEnableOutput = false;
+    private final byte CHANGE_OUTPUT = 4;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,6 +87,8 @@ public class FunctionGen extends ContentFragment {
         initFrequency(v); // Frequency
         initAmplitude(v); // Amplitude
         initOffset(v);    // Offset
+
+        initEnableOutput(v); // Enable output button
 
         // Get bluetooth connection
         initBluetooth();
@@ -184,7 +190,6 @@ public class FunctionGen extends ContentFragment {
             }
         });
     }
-
     private void initAmplitude(View v) {
 
         // Button increment amplitude
@@ -259,7 +264,6 @@ public class FunctionGen extends ContentFragment {
             }
         });
     }
-
     private void initOffset(View v) {
 
         // Button increment amplitude
@@ -331,6 +335,18 @@ public class FunctionGen extends ContentFragment {
                     AlertDialog dialog = dialogBuilder.create();
                     dialog.show();
                 }
+            }
+        });
+    }
+
+    private void initEnableOutput(View v) {
+        mEnableOutputButton = v.findViewById(R.id.functionGen_EnableOutput);
+        changeSetting(CHANGE_OUTPUT, false);
+        mEnableOutputButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mEnableOutput = !mEnableOutput;
+                changeSetting(CHANGE_OUTPUT, true);
             }
         });
     }
@@ -407,6 +423,11 @@ public class FunctionGen extends ContentFragment {
                         Log.e(DEBUG_TAG+".onCharacteristicRead", "Could not read the offset correctly.");
                     }
 
+                // Enable output
+                } else if (characteristicUuid.equals(mUuidCharacteristicFunctonGenOutputEnabled)) {
+                    mEnableOutput = characteristic.getStringValue(0).toLowerCase().equals("true");
+                    changeSetting(CHANGE_OUTPUT, false);
+
                 } else {
                     // TODO: other characteristics
                 }
@@ -438,6 +459,10 @@ public class FunctionGen extends ContentFragment {
                     mOffsetDisplay.setText(df.format(mOffset) + " V");
                     break;
 
+                case CHANGE_OUTPUT:
+                    mEnableOutputButton.setText(mEnableOutput ? "Disable" : "Enable");
+                    break;
+
                 default:
                     break;
             }
@@ -458,15 +483,19 @@ public class FunctionGen extends ContentFragment {
             switch (changeToMake) {
 
                 case CHANGE_FREQUENCY:
-                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenFrequency, mFrequency);
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenFrequency, (Integer) mFrequency);
                     break;
 
                 case CHANGE_AMPLITUDE:
-                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenAmplitude, mAmplitude);
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenAmplitude, (Integer) mAmplitude);
                     break;
 
                 case CHANGE_OFFSET:
-                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenOffset, mOffset);
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctionGenOffset, (Integer) mOffset);
+                    break;
+
+                case CHANGE_OUTPUT:
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenOutputEnabled, (Boolean) mEnableOutput);
                     break;
 
                 default:

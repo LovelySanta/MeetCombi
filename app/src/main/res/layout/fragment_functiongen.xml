@@ -210,7 +210,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/functionGen_SetActive"
+        android:id="@+id/functionGen_EnableOutput"
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -16,7 +16,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -77,6 +76,9 @@ public class Bluetooth {
         private int valueType;
         private Object value;
 
+        public static final int FORMAT_UINT16 = 1;
+        public static final int FORMAT_BOOL = 2;
+
         WriteValue(int valueType, Object value) {
             this.valueType = valueType;
             this.value = value;
@@ -91,6 +93,9 @@ public class Bluetooth {
         }
         public int getIntValue() {
             return (Integer) this.value;
+        }
+        public String getStringValue() {
+            return (String) this.value;
         }
     }
 
@@ -367,7 +372,7 @@ public class Bluetooth {
         }
     }
 
-    // Bluetooth GATT Characteristics
+    // Bluetooth GATT Characteristics read functions
     private Boolean requestCharacteristicRead() {
         if (mCharacteristicsToRead.size() > 0) {
             mBusy = mBluetoothGatt.readCharacteristic(mCharacteristicsToRead.get(mCharacteristicsToRead.size() - 1));
@@ -411,6 +416,7 @@ public class Bluetooth {
         return mStatus;
     }
 
+    // Bluetooth GATT Characteristics write functions
     private Boolean requestCharacteristicWrite() {
         if (mCharacteristicsToWrite.size() > 0) {
             Map.Entry<BluetoothGattCharacteristic, WriteValue> hashMapEntry = mCharacteristicsToWrite.entrySet().iterator().next();
@@ -418,13 +424,23 @@ public class Bluetooth {
             WriteValue mValue = hashMapEntry.getValue();
 
             switch (mValue.getValueType()) {
-                case BluetoothGattCharacteristic.FORMAT_UINT16:
+                case WriteValue.FORMAT_UINT16:
                     Log.d(DEBUG_TAG + ".requestCharacteristicWrite", "Characteristic " + characteristic.getUuid().toString() + " getting writting value " + mValue.getIntValue());
 
                     characteristic.setValue(mValue.getIntValue(), BluetoothGattCharacteristic.FORMAT_UINT16, 0);
-                    //characteristic.setValue(501, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                    //characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                    characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+                    //characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+
+                    mBusy = mBluetoothGatt.writeCharacteristic(characteristic);
+                    break;
+
+                case WriteValue.FORMAT_BOOL:
+                    Log.d(DEBUG_TAG + ".requestCharacteristicWrite", "Characteristic " + characteristic.getUuid().toString() + " getting writting value " + mValue.getStringValue());
+
+                    characteristic.setValue(mValue.getStringValue());
+                    characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
                     characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+
                     mBusy = mBluetoothGatt.writeCharacteristic(characteristic);
                     break;
 
@@ -466,7 +482,9 @@ public class Bluetooth {
     }
     public Boolean writeCharacteristic(BluetoothGattService mBluetoothGattService, UUID mCharacteristicUuid, Object mValueToWrite) {
         if (mValueToWrite instanceof Integer) {
-            return writeCharacteristic(mBluetoothGattService, mCharacteristicUuid, BluetoothGattCharacteristic.FORMAT_UINT16, mValueToWrite);
+            return writeCharacteristic(mBluetoothGattService, mCharacteristicUuid, WriteValue.FORMAT_UINT16, mValueToWrite);
+        } else if (mValueToWrite instanceof Boolean) {
+            return writeCharacteristic(mBluetoothGattService, mCharacteristicUuid, WriteValue.FORMAT_BOOL, (Boolean) mValueToWrite ? "True" : "False");
         } else {
             return false;
         }
