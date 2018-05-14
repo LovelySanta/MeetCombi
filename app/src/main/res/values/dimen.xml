@@ -5,5 +5,8 @@
 
     <!-- FunctieGenerator -->
     <dimen name="fuctionGen_Screen">39dip</dimen>
-    <dimen name="fuctionGen_Btn">33dip</dimen>
+    <dimen name="fuctionGen_ScreenBtn">33dip</dimen>
+
+    <dimen name="fuctionGen_ShapeBtnHeight">40dip</dimen>
+    <dimen name="fuctionGen_ShapeBtnWidth">75dip</dimen>
 </resources>

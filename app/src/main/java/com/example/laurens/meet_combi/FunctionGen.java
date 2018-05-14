@@ -65,6 +65,19 @@ public class FunctionGen extends ContentFragment {
     private Boolean mEnableOutput = false;
     private final byte CHANGE_OUTPUT = 4;
 
+    // Waveform shape buttons
+    private Button mShapeSinusButton;
+    private Button mShapeTriangleButton;
+    private Button mShapeSquareButton;
+    private Button mShapeSawtoothButton;
+    private final int mShapeSinus = 1;
+    private final int mShapeTriangle = 2;
+    private final int mShapeSquare = 3;
+    private final int mShapeSawtooth = 4;
+    private int mShape = mShapeSinus;
+    private final byte CHANGE_SHAPE = 5;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -87,6 +100,7 @@ public class FunctionGen extends ContentFragment {
         initFrequency(v); // Frequency
         initAmplitude(v); // Amplitude
         initOffset(v);    // Offset
+        initShape(v);     // Shape
 
         initEnableOutput(v); // Enable output button
 
@@ -161,7 +175,7 @@ public class FunctionGen extends ContentFragment {
                     );
                     mEditText.setLayoutParams(mLayoutParams);
                     mEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    mEditText.setText("" + mFrequency, TextView.BufferType.EDITABLE);
+                    mEditText.setText(String.valueOf(mFrequency), TextView.BufferType.EDITABLE);
                     dialogBuilder.setView(mEditText);
 
                     dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
@@ -235,7 +249,7 @@ public class FunctionGen extends ContentFragment {
                     );
                     mEditText.setLayoutParams(mLayoutParams);
                     mEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    mEditText.setText("" + mAmplitude, TextView.BufferType.EDITABLE);
+                    mEditText.setText(String.valueOf(mAmplitude), TextView.BufferType.EDITABLE);
                     dialogBuilder.setView(mEditText);
 
                     dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
@@ -309,7 +323,7 @@ public class FunctionGen extends ContentFragment {
                     );
                     mEditText.setLayoutParams(mLayoutParams);
                     mEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    mEditText.setText("" + mOffset, TextView.BufferType.EDITABLE);
+                    mEditText.setText(String.valueOf(mOffset), TextView.BufferType.EDITABLE);
                     dialogBuilder.setView(mEditText);
 
                     dialogBuilder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
@@ -338,7 +352,54 @@ public class FunctionGen extends ContentFragment {
             }
         });
     }
+    private void initShape(View v) {
+        // Button shape sinus
+        mShapeSinusButton = v.findViewById(R.id.functionGen_ShapeSinus);
+        mShapeSinusButton.setText(R.string.functionGen_shape_sinus);
+        mShapeSinusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mShape = mShapeSinus;
+                changeSetting(CHANGE_SHAPE, true);
+            }
+        });
 
+        // Button shape triangle
+        mShapeTriangleButton = v.findViewById(R.id.functionGen_ShapeTriangle);
+        mShapeTriangleButton.setText(R.string.functionGen_shape_triangle);
+        mShapeTriangleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mShape = mShapeTriangle;
+                changeSetting(CHANGE_SHAPE, true);
+            }
+        });
+
+        // Button shape square
+        mShapeSquareButton = v.findViewById(R.id.functionGen_ShapeSquare);
+        mShapeSquareButton.setText(R.string.functionGen_shape_square);
+        mShapeSquareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mShape = mShapeSquare;
+                changeSetting(CHANGE_SHAPE, true);
+            }
+        });
+
+        // Button shape sawtooth
+        mShapeSawtoothButton = v.findViewById(R.id.functionGen_ShapeSawtooth);
+        mShapeSawtoothButton.setText(R.string.functionGen_shape_sawtooth);
+        mShapeSawtoothButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mShape = mShapeSawtooth;
+                changeSetting(CHANGE_SHAPE, true);
+            }
+        });
+
+        // Update buttons to default setting
+        changeSetting(CHANGE_SHAPE, false);
+    }
     private void initEnableOutput(View v) {
         mEnableOutputButton = v.findViewById(R.id.functionGen_EnableOutput);
         changeSetting(CHANGE_OUTPUT, false);
@@ -350,7 +411,6 @@ public class FunctionGen extends ContentFragment {
             }
         });
     }
-
     private void initBluetooth() {
         mBluetoothCallbacks = new Bluetooth.ConnectCallbacks() {
 
@@ -428,9 +488,17 @@ public class FunctionGen extends ContentFragment {
                     mEnableOutput = characteristic.getStringValue(0).toLowerCase().equals("true");
                     changeSetting(CHANGE_OUTPUT, false);
 
-                } else {
-                    // TODO: other characteristics
+                // Shape of the waveform
+                } else if (characteristicUuid.equals(mUuidCharacteristicFunctonGenSignalShape)) {
+                    try{
+                        mShape = Integer.parseInt(characteristic.getStringValue(0));
+                        changeSetting(CHANGE_SHAPE, false);
+                    } catch (NumberFormatException nfe) {
+                        Log.e(DEBUG_TAG+".onCharacteristicRead", "Could not read the shape correctly.");
+                    }
                 }
+
+                // TODO: other characteristics
             }
 
             @Override
@@ -441,6 +509,7 @@ public class FunctionGen extends ContentFragment {
         mCallbacks.getBluetooth().addCallback(mBluetoothCallbacks);
         mCallbacks.getBluetooth().discoverServices();
     }
+
     private void changeSetting(final byte changeToMake, Boolean updateBluetooth) {
         // Update TextView
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
@@ -452,15 +521,22 @@ public class FunctionGen extends ContentFragment {
                     break;
 
                 case CHANGE_AMPLITUDE:
-                    mAmplitudeDisplay.setText(df.format(mAmplitude) + " V");
+                    mAmplitudeDisplay.setText(df.format(mAmplitude) + " mV");
                     break;
 
                 case CHANGE_OFFSET:
-                    mOffsetDisplay.setText(df.format(mOffset) + " V");
+                    mOffsetDisplay.setText(df.format(mOffset) + " mV");
                     break;
 
                 case CHANGE_OUTPUT:
                     mEnableOutputButton.setText(mEnableOutput ? "Disable" : "Enable");
+                    break;
+
+                case CHANGE_SHAPE:
+                    mShapeSinusButton.setEnabled(mShape == mShapeSinus);
+                    mShapeTriangleButton.setEnabled(mShape == mShapeTriangle);
+                    mShapeSquareButton.setEnabled(mShape == mShapeSquare);
+                    mShapeSawtoothButton.setEnabled(mShape == mShapeSawtooth);
                     break;
 
                 default:
