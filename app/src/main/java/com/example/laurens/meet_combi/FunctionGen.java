@@ -533,10 +533,10 @@ public class FunctionGen extends ContentFragment {
                     break;
 
                 case CHANGE_SHAPE:
-                    mShapeSinusButton.setEnabled(mShape == mShapeSinus);
-                    mShapeTriangleButton.setEnabled(mShape == mShapeTriangle);
-                    mShapeSquareButton.setEnabled(mShape == mShapeSquare);
-                    mShapeSawtoothButton.setEnabled(mShape == mShapeSawtooth);
+                    mShapeSinusButton.setEnabled(mShape != mShapeSinus);
+                    mShapeTriangleButton.setEnabled(mShape != mShapeTriangle);
+                    mShapeSquareButton.setEnabled(mShape != mShapeSquare);
+                    mShapeSawtoothButton.setEnabled(mShape != mShapeSawtooth);
                     break;
 
                 default:
@@ -574,6 +574,8 @@ public class FunctionGen extends ContentFragment {
                     mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenOutputEnabled, (Boolean) mEnableOutput);
                     break;
 
+                case CHANGE_SHAPE:
+                    mCallbacks.getBluetooth().writeCharacteristic(mCallbacks.getBluetooth().getService(mUuidServiceFunctionGen), mUuidCharacteristicFunctonGenSignalShape, (Integer) mShape);
                 default:
                     break;
             }
