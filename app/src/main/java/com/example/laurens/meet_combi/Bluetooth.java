@@ -375,8 +375,10 @@ public class Bluetooth {
     // Bluetooth GATT Characteristics read functions
     private Boolean requestCharacteristicRead() {
         if (mCharacteristicsToRead.size() > 0) {
+            Log.d(DEBUG_TAG + ".requestCharacteristicRead", "Reading new characteristic");
             mBusy = mBluetoothGatt.readCharacteristic(mCharacteristicsToRead.get(mCharacteristicsToRead.size() - 1));
         } else { // Nothing more to read
+            Log.d(DEBUG_TAG + ".requestCharacteristicRead", "Nothing else to read");
             if (mCharacteristicsToWrite.size() > 0) {
                 requestCharacteristicWrite();
             } else {
